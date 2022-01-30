@@ -6,7 +6,6 @@ def tag_flagger_machine(tags: list, start_index=0, write_csv=False):
     input: list of tags
     output: dict of tags broken down by category
     '''
-
     import copy
     import csv
     import os
@@ -16,8 +15,8 @@ def tag_flagger_machine(tags: list, start_index=0, write_csv=False):
         f'{"-" * 20}\
         \n 1 = genre\
         \n 2 = mood\
-        \n 3 = decade\
-        \n r = tag name did not display. reload\
+        \n 3 = instrument\
+        \n r = tag name did not display: reload\
         \n x = exit program\
         \n anything else = dump\
         \n {"-" * 20}'
@@ -26,7 +25,7 @@ def tag_flagger_machine(tags: list, start_index=0, write_csv=False):
     input_to_category_map = dict([
         (1, 'genre'),
         (2, 'mood'),
-        (3, 'decade')
+        (3, 'instrument')
     ])
 
     tag = tags[0]
@@ -36,16 +35,17 @@ def tag_flagger_machine(tags: list, start_index=0, write_csv=False):
     tags_package = dict(
         genre=dict(values=[], message=' -> genre'),
         mood=dict(values=[], message=' -> mood'),
-        decade=dict(values=[], message=' -> decade')
+        instrument=dict(values=[], message=' -> instrument')
     )
-    temp_csv_name = create_tags_csv()
-    with open(temp_csv_name, 'w', newline='') as tags_csv:
+
+    csv_path, temp_csv_name = create_tags_csv()
+    with open(csv_path + temp_csv_name, 'w', newline='') as tags_csv:
 
         tags_writer = csv.writer(
              tags_csv, delimiter=';',
              quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
-        for tag in tags:
+        for tag in tags[start_index:]:
 
             print(f'{message} \n', instructions_message, f'\n Tag: {tag}')
 
@@ -79,7 +79,7 @@ def tag_flagger_machine(tags: list, start_index=0, write_csv=False):
 
     print(f'Tags {start_index} to {tag_index} have been successfully classified!')
     csv_name = str(start_index) + '_to_' + str(tag_index) + temp_csv_name[4:]
-    os.rename(temp_csv_name, csv_name)
+    os.rename(csv_path + temp_csv_name, csv_path + csv_name)
 
     return tags_package
 
@@ -93,7 +93,8 @@ def create_tags_csv():
     now = datetime.now()
     now = now.strftime('%Y-%m-%d_%H-%M-%S')
     temp_file_name = 'temp_tags_csv_' + now +'.csv'
+    file_path = f'Datasets\\tags_classification\\'
 
-    open(temp_file_name, 'x').close()
+    open(file_path + temp_file_name, 'x').close()
 
-    return temp_file_name
+    return file_path, temp_file_name
